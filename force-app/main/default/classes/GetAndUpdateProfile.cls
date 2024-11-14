@@ -18,11 +18,9 @@ global with sharing class GetAndUpdateProfile {
         // Query the candidate record
         try {
             canlist = [
-                SELECT City__c, Country__c, Current_Employeer__c, Currently_Emoloyed__c, Education__c,
-                       Email__c, First_Name__c, Id, Last_Name__c, LastActivityDate, LastModifiedDate, Name, 
-                       Mobile__c, Phone__c, Postal_Code__c, State__c, Street__c, US_Citizen__c, Visa_Required__c,
-                       Years_of_Experience__c 
-                FROM Candidate__c 
+                select City__c, Country__c, Current_Employeer__c, Currently_Emoloyed__c, Education__c, Email__c, 
+                        First_Name__c, Id, Last_Name__c, LastActivityDate, LastModifiedDate, Name, Mobile__c, Phone__c, 
+                        Postal_Code__c, State__c, Street__c, US_Citizen__c, Visa_Required__c, Years_of_Experience__c from Candidate__c 
                 WHERE Id = :candidateId
             ];
 
@@ -47,40 +45,43 @@ global with sharing class GetAndUpdateProfile {
 
 
     @HttpPatch
-    global static String updateProfile() {
+    global static void updateProfile() {
         RestRequest req = RestContext.request;
-
+    
         // Extract CandidateId from the query parameters
         String candidateId = RestContext.request.params.get('CandidateId');
         if (String.isBlank(candidateId)) {
             RestContext.response.statusCode = 400;
-            return 'Error: CandidateId is required';
+            RestContext.response.responseBody = Blob.valueOf('{"error": "CandidateId is required"}');
+            return;
         }
-
+    
         // Ensure the request body is present
         if (req.requestBody == null || String.isBlank(req.requestBody.toString())) {
             RestContext.response.statusCode = 400;
-            return 'Error: Request body is required';
+            RestContext.response.responseBody = Blob.valueOf('{"error": "Request body is required"}');
+            return;
         }
-
+    
         // Try to deserialize the request body to a Map
         Map<String, Object> body;
         try {
             body = (Map<String, Object>) JSON.deserializeUntyped(req.requestBody.toString());
         } catch (System.TypeException e) {
             RestContext.response.statusCode = 400;
-            return 'Error: Request body must be a JSON object';
+            RestContext.response.responseBody = Blob.valueOf('{"error": "Request body must be a JSON object"}');
+            return;
         }
-
+    
         try {
             // Query the existing candidate record
             Candidate__c candidate = [SELECT Id, Years_of_Experience__c FROM Candidate__c WHERE Id = :candidateId LIMIT 1];
-
+    
             // Dynamically update fields from the request body
             for (String fieldName : body.keySet()) {
                 if (fieldName != 'Id') {  // Skip Id itself
                     Object value = body.get(fieldName);
-
+    
                     // Convert numeric fields as necessary
                     if (fieldName == 'Years_of_Experience__c' && value instanceof String) {
                         candidate.put(fieldName, Decimal.valueOf((String) value));
@@ -89,22 +90,33 @@ global with sharing class GetAndUpdateProfile {
                     }
                 }
             }
-
+    
             // Save the updated candidate record
             update candidate;
-
-            RestContext.response.statusCode = 200;
-            return 'Candidate profile updated successfully';
-
+    
+            // Send success response
+                // Send success response
+                Map<String, Object> responseBody = new Map<String, Object>{
+                    'status' => 'success',
+                    'message' => 'Candidate profile updated successfully',
+                    'candidateId' => candidateId
+                };
+                RestContext.response.statusCode = 200;
+                RestContext.response.responseBody = Blob.valueOf(JSON.serialize(responseBody));
+            System.debug(RestContext.response.responseBody);
+            return;  // Ensure the method exits after setting the response
+    
         } catch (DmlException e) {
             RestContext.response.statusCode = 500;
-            return 'Error: ' + e.getMessage();
+            RestContext.response.responseBody = Blob.valueOf('{"error": "' + e.getMessage() + '"}');
         } catch (QueryException e) {
             RestContext.response.statusCode = 404;
-            return 'Error: Candidate not found';
+            RestContext.response.responseBody = Blob.valueOf('{"error": "Candidate not found"}');
         } catch (System.TypeException e) {
             RestContext.response.statusCode = 400;
-            return 'Error: Invalid type for field update';
+            RestContext.response.responseBody = Blob.valueOf('{"error": "Invalid type for field update"}');
         }
     }
+    
+    
 }

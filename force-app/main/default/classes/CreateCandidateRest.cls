@@ -16,6 +16,7 @@ global class CreateCandidateRest {
 		newcan.Users__c = UserId;
         insert newcan;
         response.put('CandidateId', newcan.id);
+        response.put('Username', newcan.First_Name__c);
         return JSON.serialize(response);
 }
 

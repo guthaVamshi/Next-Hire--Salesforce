@@ -22,6 +22,7 @@ global class LoginFunctionalityRest {
             }
             response.put('ResString', 'Auth Success');
             response.put('Id', AuthUser[0].Id);
+            response.put('Username', AuthUser[0].UserName__c);
         } else {
             response.put('ResString', 'failed');
         }
