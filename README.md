@@ -1,3 +1,7 @@
+
+![Logo](https://github.com/guthaVamshi/Next-Hire/blob/main/Public/Images/next-hire.png)
+
+
 # Salesforce Code Repository
 
 This repository contains the Salesforce Apex resources and metadata components used in the project. All custom code and configurations are organized within the standard Salesforce project structure.
