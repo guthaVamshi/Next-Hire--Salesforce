@@ -1,3 +1,26 @@
+# Salesforce Code Repository
+
+This repository contains the Salesforce Apex resources and metadata components used in the project. All custom code and configurations are organized within the standard Salesforce project structure.
+
+## Structure Overview
+
+The main codebase is located in the `force-app/main/default` directory. Key folders include:
+
+- **classes**: Contains all Apex classes used in the project.
+- **triggers**: Contains any triggers associated with Salesforce objects.
+- **objects**: Metadata for custom objects, including fields, validation rules, and relationships.
+
+
+
+
+
+
+
+## Viewing Apex Classes
+
+To view the Apex classes:
+1. Navigate to the following directory in the repository:
+
 # Salesforce DX Project: Next Steps
 
 Now that you’ve created a Salesforce DX project, what’s next? Here are some documentation resources to get you started.
